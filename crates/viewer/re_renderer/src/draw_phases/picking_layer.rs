@@ -407,13 +407,12 @@ impl PickingLayerProcessor {
                 // Assert that our texture data reinterpretation works out from a pixel size point of view.
                 debug_assert_eq!(
                     Self::PICKING_LAYER_DEPTH_FORMAT
-                        .block_copy_size(Some(wgpu::TextureAspect::DepthOnly))
-                        .unwrap(),
-                    std::mem::size_of::<f32>() as u32
+                        .block_copy_size(Some(wgpu::TextureAspect::DepthOnly)),
+                    Some(std::mem::size_of::<f32>() as u32)
                 );
                 debug_assert_eq!(
-                    Self::PICKING_LAYER_FORMAT.block_copy_size(None).unwrap() as usize,
-                    std::mem::size_of::<PickingLayerId>()
+                    Self::PICKING_LAYER_FORMAT.block_copy_size(None),
+                    Some(std::mem::size_of::<PickingLayerId>() as u32)
                 );
 
                 let buffer_info_id = Texture2DBufferInfo::new(
@@ -438,10 +437,8 @@ impl PickingLayerProcessor {
                     // Can't read back depth textures & can't read back R32Float textures either!
                     // See https://github.com/gfx-rs/wgpu/issues/3644
                     debug_assert_eq!(
-                        DepthReadbackWorkaround::READBACK_FORMAT
-                            .block_copy_size(None)
-                            .unwrap() as usize,
-                        std::mem::size_of::<f32>() * 4
+                        DepthReadbackWorkaround::READBACK_FORMAT.block_copy_size(None),
+                        Some((std::mem::size_of::<f32>() * 4) as u32)
                     );
                     picking_depth_data = picking_depth_data.into_iter().step_by(4).collect();
                 }

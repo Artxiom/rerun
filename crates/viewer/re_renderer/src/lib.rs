@@ -7,9 +7,6 @@
 #![doc = document_features::document_features!()]
 //!
 
-// TODO(#3408): remove unwrap()
-#![allow(clippy::unwrap_used)]
-
 pub mod config;
 pub mod importer;
 pub mod mesh;
@@ -119,5 +116,14 @@ pub fn pad_rgb_to_rgba<T: Copy>(rgb: &[T], alpha: T) -> Vec<T> {
         rgb.chunks_exact(3)
             .flat_map(|chunk| [chunk[0], chunk[1], chunk[2], alpha])
             .collect()
+    }
+}
+
+/// Unwraps Option<T> constants that implement the Copy trait at compile time.
+// TODO(#6330): this should be probably somewhere accessible workspace-wide. Not sure where, couldn't find a good place.
+const fn const_unwrap<T: Copy>(v: Option<T>) -> T {
+    match v {
+        Some(v) => v,
+        None => panic!("Expected Some(_) constant but is None"),
     }
 }

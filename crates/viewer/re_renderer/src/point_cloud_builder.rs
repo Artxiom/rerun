@@ -90,9 +90,11 @@ pub struct PointCloudBatchBuilder<'a, 'ctx>(&'a mut PointCloudBuilder<'ctx>);
 
 impl<'a, 'ctx> Drop for PointCloudBatchBuilder<'a, 'ctx> {
     fn drop(&mut self) {
-        // Remove batch again if it wasn't actually used.
-        if self.0.batches.last().unwrap().point_count == 0 {
-            self.0.batches.pop();
+        if let Some(last) = self.0.batches.last() {
+            // Remove batch again if it wasn't actually used.
+            if last.point_count == 0 {
+                self.0.batches.pop();
+            }
         }
     }
 }

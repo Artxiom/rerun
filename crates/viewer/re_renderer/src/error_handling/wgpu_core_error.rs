@@ -141,17 +141,16 @@ impl DedupableError for wgpu_core::pipeline::CreateShaderModuleError {
     }
 
     fn eq(&self, rhs: &(dyn std::error::Error + Send + Sync + 'static)) -> bool {
-        if rhs.downcast_ref::<Self>().is_none() {
-            return false;
-        }
-        let rhs = rhs.downcast_ref::<Self>().unwrap();
-
-        #[allow(clippy::enum_glob_use)]
-        use wgpu_core::pipeline::CreateShaderModuleError::*;
-        match (self, rhs) {
-            (Parsing(err1), Parsing(err2)) => err1.source == err2.source,
-            (Validation(err1), Validation(err2)) => err1.source == err2.source,
-            _ => true,
+        if let Some(rhs) = rhs.downcast_ref::<Self>() {
+            #[allow(clippy::enum_glob_use)]
+            use wgpu_core::pipeline::CreateShaderModuleError::*;
+            match (self, rhs) {
+                (Parsing(err1), Parsing(err2)) => err1.source == err2.source,
+                (Validation(err1), Validation(err2)) => err1.source == err2.source,
+                _ => true,
+            }
+        } else {
+            false
         }
     }
 }

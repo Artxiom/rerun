@@ -17,6 +17,8 @@ use crate::{
     FileServer, RecommendedFileResolver,
 };
 
+use crate::const_unwrap;
+
 /// Frame idx used before starting the first frame.
 const STARTUP_FRAME_IDX: u64 = u64::MAX;
 
@@ -244,12 +246,12 @@ impl RenderContext {
                 ));
         }
 
-        let cpu_write_gpu_read_belt = Mutex::new(CpuWriteGpuReadBelt::new(
-            Self::CPU_WRITE_GPU_READ_BELT_DEFAULT_CHUNK_SIZE.unwrap(),
-        ));
-        let gpu_readback_belt = Mutex::new(GpuReadbackBelt::new(
-            Self::GPU_READBACK_BELT_DEFAULT_CHUNK_SIZE.unwrap(),
-        ));
+        let cpu_write_gpu_read_belt = Mutex::new(CpuWriteGpuReadBelt::new(const_unwrap(
+            Self::CPU_WRITE_GPU_READ_BELT_DEFAULT_CHUNK_SIZE,
+        )));
+        let gpu_readback_belt = Mutex::new(GpuReadbackBelt::new(const_unwrap(
+            Self::GPU_READBACK_BELT_DEFAULT_CHUNK_SIZE,
+        )));
 
         Ok(Self {
             device,
@@ -468,6 +470,7 @@ This means, either a call to RenderContext::before_submit was omitted, or the pr
 
         // Release write lock again and only take a read lock.
         // safe to unwrap since we just created it and nobody removes elements from the renderer.
+        #[allow(clippy::unwrap_used)]
         parking_lot::RwLockReadGuard::map(self.renderers.read(), |r| r.get::<R>().unwrap())
     }
 
